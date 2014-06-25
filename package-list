@@ -1,0 +1,10 @@
+org.ambraproject.wombat.config
+org.ambraproject.wombat.config.site
+org.ambraproject.wombat.config.site.url
+org.ambraproject.wombat.config.theme
+org.ambraproject.wombat.controller
+org.ambraproject.wombat.freemarker
+org.ambraproject.wombat.service
+org.ambraproject.wombat.service.cas
+org.ambraproject.wombat.service.remote
+org.ambraproject.wombat.util
