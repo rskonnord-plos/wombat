@@ -165,7 +165,8 @@ public class ArticleTransformServiceImpl implements ArticleTransformService {
 
         // Note: returning null here will cause the HTTP request to be made.
 
-        if ("http://dtd.nlm.nih.gov/publishing/3.0/journalpublishing3.dtd".equals(systemId)) {
+        if ("http://dtd.nlm.nih.gov/publishing/3.0/journalpublishing3.dtd".equals(systemId) ||
+            "http://jats.nlm.nih.gov/publishing/1.1d2/JATS-journalpublishing1.dtd".equals(systemId)) {
           return new InputSource(new StringReader(""));
         } else {
           throw new IllegalArgumentException("Unexpected entity encountered: " + systemId);
