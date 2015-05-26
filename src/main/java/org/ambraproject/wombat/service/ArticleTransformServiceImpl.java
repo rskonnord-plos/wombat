@@ -38,6 +38,8 @@ import java.io.SequenceInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -150,36 +152,40 @@ public class ArticleTransformServiceImpl implements ArticleTransformService {
       throw new TransformerException(e);
     }
 
-    // This is a little unorthodox.  Without setting this custom EntityResolver, the transform will
-    // make ~50 HTTP calls to nlm.nih.gov to retrieve the DTD and various entity files referenced
-    // in the article XML.  By setting a custom EntityResolver that just returns an empty string
-    // for each of these, we prevent that.  This seems to have no ill effects on the transformation
-    // itself.  This is a roundabout way of turning off DTD validation, which is more
-    // straightforward to do with a Document/DocumentBuilder, but the saxon library we're using
-    // is much faster at XSLT if it uses its own XML parser instead of DocumentBuilder.  See
-    // http://stackoverflow.com/questions/155101/make-documentbuilder-parse-ignore-dtd-references
-    // for a discussion.
-    xmlr.setEntityResolver(new EntityResolver() {
-      @Override
-      public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+    DummyEntityResolver entityResolver = new DummyEntityResolver();
+    xmlr.setEntityResolver(entityResolver);
 
-        // Note: returning null here will cause the HTTP request to be made.
-
-        if ("http://dtd.nlm.nih.gov/publishing/3.0/journalpublishing3.dtd".equals(systemId) ||
-            "http://jats.nlm.nih.gov/publishing/1.1d2/JATS-journalpublishing1.dtd".equals(systemId)) {
-          return new InputSource(new StringReader(""));
-        } else {
-          throw new IllegalArgumentException("Unexpected entity encountered: " + systemId);
-        }
-      }
-    });
     // build the transformer and add any context-dependent parameters required for the transform
     // NOTE: the XMLReader is passed here for use in creating any required secondary SAX sources
     Transformer transformer = buildTransformer(renderContext, xmlr);
     SAXSource saxSource = new SAXSource(xmlr, new InputSource(xml));
-    transformer.transform(saxSource, new StreamResult(html));
+    try {
+      transformer.transform(saxSource, new StreamResult(html));
+    } catch (TransformerException | RuntimeException e) {
+      log.error("EntityResolver requests: {}", entityResolver.systemIdsRequested);
+      throw e;
+    }
 
     log.debug("Finished XML transformation");
+  }
+
+  // This is a little unorthodox.  Without setting this custom EntityResolver, the transform will
+  // make ~50 HTTP calls to nlm.nih.gov to retrieve the DTD and various entity files referenced
+  // in the article XML.  By setting a custom EntityResolver that just returns an empty string
+  // for each of these, we prevent that.  This seems to have no ill effects on the transformation
+  // itself.  This is a roundabout way of turning off DTD validation, which is more
+  // straightforward to do with a Document/DocumentBuilder, but the saxon library we're using
+  // is much faster at XSLT if it uses its own XML parser instead of DocumentBuilder.  See
+  // http://stackoverflow.com/questions/155101/make-documentbuilder-parse-ignore-dtd-references
+  // for a discussion.
+  private static class DummyEntityResolver implements EntityResolver {
+    private final Collection<String> systemIdsRequested = new ArrayList<>();
+
+    @Override
+    public InputSource resolveEntity(String publicId, String systemId) {
+      systemIdsRequested.add(systemId);
+      return new InputSource(new StringReader("")); // returning null here would cause the HTTP request to be made.
+    }
   }
 
   @Override
