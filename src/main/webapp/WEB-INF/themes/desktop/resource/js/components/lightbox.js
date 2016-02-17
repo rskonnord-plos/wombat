@@ -131,7 +131,6 @@ var FigureLightbox = {};
         .find('#lb-zoom-max').on('click', function () {
           that.zoomIn();
         }).end()
-
         .on('image-switch.lightbox', function (e, data) {
           // Show both prev and next buttons
           var buttons = $(that.lbSelector).find('.fig-btn').show();
@@ -201,8 +200,11 @@ var FigureLightbox = {};
     // Remove actual img context
     $(this.lbSelector + ' #image-context').children().remove().end()
         // Append new img context
-        .append(lbTemplate(templateData));
+        .append(lbTemplate(templateData))
+      //Add link to go to
+        .find('a[href^="#"]').addClass('target_link');
     this.renderImg(this.imgData.doi);
+
 
     if (!this.descriptionExpanded) {
       this.truncateDescription();
@@ -380,6 +382,9 @@ var FigureLightbox = {};
       that.bindPanZoomToSlider();
     });
   };
+
+  FigureLightbox.goToLink = function () {
+  }
 
 
   FigureLightbox.buildImgUrl = function (imgDoi, options) {

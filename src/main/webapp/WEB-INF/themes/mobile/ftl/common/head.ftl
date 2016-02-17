@@ -9,8 +9,12 @@
   <#if article.date??>
     <meta name="citation_date" content="${article.date?date("yyyy-MM-dd")}"/>
   </#if>
+  <#if article.title??>
   <meta name="citation_title" content="${article.title?replace('<.+?>',' ','r')?html}"/>
+  </#if>
+  <#if article.doi??>
   <meta name="citation_doi" content="${article.doi}"/>
+  </#if>
 </#if>
 
 
