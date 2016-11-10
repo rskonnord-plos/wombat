@@ -1,9 +1,8 @@
 package org.ambraproject.wombat.service;
 
 import org.ambraproject.wombat.model.Reference;
-import org.xml.sax.SAXException;
+import org.ambraproject.wombat.model.RetractionType;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -15,13 +14,20 @@ public interface ParseXmlService {
   /**
    * Parses the references in the article xml
    *
-   * @param xml  article xml
+   * @param xml article xml
    * @return list of Reference objects
-   * @throws ParserConfigurationException
    * @throws IOException
-   * @throws SAXException
-   * @throws XmlContentException
    */
   List<Reference> parseArticleReferences(InputStream xml,
                                          ParseReferenceService.DoiToJournalLinkService linkService) throws IOException;
+
+  /**
+   * Parses the retraction type for an article
+   *
+   * @param xml
+   * @return {@link RetractionType}
+   * @throws IOException
+   */
+  RetractionType parseArticleAmendmentRetractionType(InputStream xml,
+                                                     ParseReferenceService.DoiToJournalLinkService linkService) throws IOException;
 }

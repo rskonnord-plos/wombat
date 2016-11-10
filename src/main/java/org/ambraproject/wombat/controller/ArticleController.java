@@ -161,6 +161,9 @@ public class ArticleController extends WombatController {
         .getArticlePointer();
 
     XmlContent xmlContent = getXmlContent(site, articlePointer, request);
+    if (xmlContent.html.contains("")) {
+
+    }
     model.addAttribute("articleText", xmlContent.html);
     model.addAttribute("references", xmlContent.references);
 
@@ -756,6 +759,8 @@ public class ArticleController extends WombatController {
             }
             return linkText;
           });
+
+      //<xsl:when test="front/notes[@notes-type='version-unavailable']">
 
       StringWriter articleHtml = new StringWriter(XFORM_BUFFER_SIZE);
       try (OutputStream outputStream = new WriterOutputStream(articleHtml, charset)) {
