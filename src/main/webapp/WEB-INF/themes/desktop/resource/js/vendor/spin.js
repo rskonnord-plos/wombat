@@ -2,7 +2,6 @@
  * Copyright (c) 2011-2014 Felix Gnass
  * Licensed under the MIT license
  *
- * 11/2014 this is the spinner being used by Lemur
  * http://fgnass.github.io/spin.js/
  */
 (function(root, factory) {
